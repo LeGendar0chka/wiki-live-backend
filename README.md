@@ -34,10 +34,14 @@
 
 ## Примеры запросов (curl)
 
-- **Создание страницы**: ```curl -X POST http://localhost:8080/api/wiki/pages -H "Content-Type: application/json" -H "X-User-Id: demo-user" -d '{"spaceId":"demo-space","title":"Пример страницы","contentJson":"{\"type\":\"doc\",\"content\":[{\"type\":\"paragraph\",\"content\":[{\"type\":\"text\",\"text\":\"Текст страницы\"}]}]}"}'```
-- **Обновление страницы**: ```curl -X PATCH http://localhost:8080/api/wiki/pages/{id} -H "Content-Type: application/json" -H "X-User-Id: demo-user" -d '{"contentJson":"{\"type\":\"doc\",\"content\":[{\"type\":\"paragraph\",\"content\":[{\"type\":\"text\",\"text\":\"Измененный текст\"}]}]}"}'```
-- **Получение обратных ссылок** : ```curl http://localhost:8080/api/wiki/pages/{id}/backlinks```
-- **AI-запрос**: ```curl -X POST http://localhost:8080/api/ai/assist -H "Content-Type: application/json" -d '{"prompt":"Суммаризируй выделенный текст","context":"Текст для обработки"}'```
+- **Создание страницы**: ```bash
+curl -X POST http://localhost:8080/api/wiki/pages -H "Content-Type: application/json" -H "X-User-Id: demo-user" -d '{"spaceId":"demo-space","title":"Пример страницы","contentJson":"{\"type\":\"doc\",\"content\":[{\"type\":\"paragraph\",\"content\":[{\"type\":\"text\",\"text\":\"Текст страницы\"}]}]}"}'```
+- **Обновление страницы**: ```bash 
+curl -X PATCH http://localhost:8080/api/wiki/pages/{id} -H "Content-Type: application/json" -H "X-User-Id: demo-user" -d '{"contentJson":"{\"type\":\"doc\",\"content\":[{\"type\":\"paragraph\",\"content\":[{\"type\":\"text\",\"text\":\"Измененный текст\"}]}]}"}'```
+- **Получение обратных ссылок** : ```bash 
+curl http://localhost:8080/api/wiki/pages/{id}/backlinks```
+- **AI-запрос**: ```bash 
+curl -X POST http://localhost:8080/api/ai/assist -H "Content-Type: application/json" -d '{"prompt":"Суммаризируй выделенный текст","context":"Текст для обработки"}'```
 
 ## Структура проекта (дерево папок)
 
