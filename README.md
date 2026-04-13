@@ -9,17 +9,17 @@
 
 ## Инструкция по установке и запуску
 
-1. Клонирование репозитория: git clone git@github.com:LeGendar0chka/wiki-live-backend.git
-2. Переход в папку: cd wiki-live-backend
-3. Запуск через Podman Compose: podman-compose up -d
-4. Запуск через Docker Compose: docker-compose up -d
-5. Альтернативный запуск скриптом (если нет Compose): chmod +x start.sh && ./start.sh
-6. Ручной запуск без контейнеров: mvn clean package && java -jar target/wiki-live-backend-1.0.0.jar
+1. **Клонирование репозитория**: `git clone git@github.com:LeGendar0chka/wiki-live-backend.git`
+2. **Переход в папку**: `cd wiki-live-backend`
+3. **Запуск через Podman Compose**: `podman-compose up -d`
+4. **Запуск через Docker Compose**: `docker-compose up -d`
+5. **Альтернативный запуск скриптом (если нет Compose)**: `chmod +x start.sh && ./start.sh`
+6. **Ручной запуск без контейнеров**: `mvn clean package && java -jar target/wiki-live-backend-1.0.0.jar`
 
 ## Остановка и очистка
 
-- Для Compose: podman-compose down или docker-compose down
-- Для скрипта: podman stop wikilive-backend-app wikilive-postgres wikilive-redis && podman rm wikilive-backend-app wikilive-postgres wikilive-redis && podman network rm wikilive-net
+- **Для Compose**: `podman-compose down или docker-compose down`
+- **Для скрипта**: `podman stop wikilive-backend-app wikilive-postgres wikilive-redis && podman rm wikilive-backend-app wikilive-postgres wikilive-redis && podman network rm wikilive-net`
 
 ## Список API эндпоинтов
 
@@ -54,4 +54,4 @@
 
 ## Лицензия
 
-Проект разработан в рамках хакатона True Tech Hack 2026.
+*Проект разработан в рамках хакатона True Tech Hack 2026*.
