@@ -41,4 +41,9 @@ public class CommentThread {
 
     @Column(name = "resolved_at")
     private Instant resolvedAt;
+    
+    @Column(name = "parent_id")
+    private UUID parentId;
+
+    private String content;
 }

@@ -9,7 +9,8 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
-
+import com.mws.wiki.model.dto.TableViewDto;
+import com.mws.wiki.model.dto.TableRowsResponseDto;
 import java.util.List;
 
 @Service
@@ -35,17 +36,6 @@ public class TablesApiClient {
                 .bodyToMono(TableMetadata.class);
     }
 
-    public Mono<List<TableRow>> getTableRows(String tableId, String viewId, String authToken) {
-        return getClient(authToken).get()
-                .uri(uriBuilder -> uriBuilder
-                        .path("/tables/{tableId}/rows")
-                        .queryParam("viewId", viewId)
-                        .build(tableId))
-                .retrieve()
-                .bodyToFlux(TableRow.class)
-                .collectList();
-    }
-
     public Mono<TableSearchResponse> searchTables(String spaceId, String query, String authToken) {
         return getClient(authToken).get()
                 .uri(uriBuilder -> uriBuilder
@@ -56,4 +46,28 @@ public class TablesApiClient {
                 .retrieve()
                 .bodyToMono(TableSearchResponse.class);
     }
+        public Mono<List<TableViewDto>> getTableViews(String tableId, String authToken) {
+                return getClient(authToken).get()
+                        .uri("/tables/{tableId}/views", tableId)
+                        .retrieve()
+                        .bodyToFlux(TableViewDto.class)
+                        .collectList()
+                        .onErrorReturn(List.of());
+}
+
+        public Mono<TableRowsResponseDto> getTableRows(String tableId, String viewId, String authToken) {
+                return getClient(authToken).get()
+                        .uri(uriBuilder -> {
+                                uriBuilder.path("/tables/{tableId}/rows");
+                                if (viewId != null) uriBuilder.queryParam("viewId", viewId);
+                                return uriBuilder.build(tableId);
+                        })
+                        .retrieve()
+                        .bodyToMono(TableRowsResponseDto.class)
+                        .onErrorReturn(TableRowsResponseDto.builder()
+                                .tableId(tableId)
+                                .viewId(viewId)
+                                .accessDenied(true)
+                                .build());
+}
 }
