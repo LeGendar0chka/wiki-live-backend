@@ -32,12 +32,11 @@ public class TablesApiClient {
     }
 
     // ==================== Поиск/список таблиц ====================
-    // GET /fusion/v1/spaces/{spaceId}/nodes?type=2  (2 = Datasheet)
     public Mono<List<TableMetadata>> searchDatasheets(String spaceId, String query, String authToken) {
         return getClient(authToken).get()
                 .uri(uriBuilder -> uriBuilder
                         .path("/fusion/v1/spaces/{spaceId}/nodes")
-                        .queryParam("type", 2)   // фильтр только таблиц
+                        .queryParam("type", 2)
                         .build(spaceId))
                 .retrieve()
                 .onStatus(status -> !status.is2xxSuccessful(), response ->
@@ -64,7 +63,6 @@ public class TablesApiClient {
     }
 
     // ==================== Метаданные таблицы ====================
-    // GET /fusion/v1/nodes/{dstId}
     public Mono<TableMetadata> getDatasheetMetadata(String dstId, String authToken) {
         return getClient(authToken).get()
                 .uri("/fusion/v1/nodes/{nodeId}", dstId)
@@ -82,7 +80,6 @@ public class TablesApiClient {
     }
 
     // ==================== Views ====================
-    // GET /fusion/v1/datasheets/{dstId}/views
     public Mono<List<TableViewDto>> getViews(String dstId, String authToken) {
         return getClient(authToken).get()
                 .uri("/fusion/v1/datasheets/{dstId}/views", dstId)
@@ -94,13 +91,16 @@ public class TablesApiClient {
                                     return Mono.error(new RuntimeException("Fusion API error: " + response.statusCode()));
                                 }))
                 .bodyToMono(new ParameterizedTypeReference<FusionResponse<FusionViewsData>>() {})
-                .map(response -> response.isSuccess() && response.getData() != null ?
-                        response.getData().getViews() : Collections.emptyList())
+                .map(response -> {
+                    if (response.isSuccess() && response.getData() != null && response.getData().getViews() != null) {
+                        return response.getData().getViews();
+                    }
+                    return Collections.<TableViewDto>emptyList();
+                })
                 .onErrorReturn(Collections.emptyList());
     }
 
     // ==================== Fields (колонки) ====================
-    // GET /fusion/v1/datasheets/{dstId}/fields?viewId=...
     public Mono<List<TableColumnDto>> getFields(String dstId, String viewId, String authToken) {
         return getClient(authToken).get()
                 .uri(uriBuilder -> {
@@ -116,15 +116,18 @@ public class TablesApiClient {
                                     return Mono.error(new RuntimeException("Fusion API error: " + response.statusCode()));
                                 }))
                 .bodyToMono(new ParameterizedTypeReference<FusionResponse<FusionFieldsData>>() {})
-                .map(response -> response.isSuccess() && response.getData() != null ?
-                        response.getData().getFields() : Collections.emptyList())
+                .map(response -> {
+                    if (response.isSuccess() && response.getData() != null && response.getData().getFields() != null) {
+                        return response.getData().getFields();
+                    }
+                    return Collections.<TableColumnDto>emptyList();
+                })
                 .onErrorReturn(Collections.emptyList());
     }
 
     // ==================== Rows (записи) ====================
-    // GET /fusion/v1/datasheets/{dstId}/records?viewId=...
-    public Mono<TableRowsResponseDto> getRows(String dstId, String viewId, String authToken) {
-        Mono<List<TableRow>> rowsMono = getClient(authToken).get()
+    public Mono<List<TableRow>> getRecords(String dstId, String viewId, String authToken) {
+        return getClient(authToken).get()
                 .uri(uriBuilder -> {
                     uriBuilder.path("/fusion/v1/datasheets/{dstId}/records");
                     if (viewId != null) uriBuilder.queryParam("viewId", viewId);
@@ -138,10 +141,18 @@ public class TablesApiClient {
                                     return Mono.error(new RuntimeException("Fusion API error: " + response.statusCode()));
                                 }))
                 .bodyToMono(new ParameterizedTypeReference<FusionResponse<FusionRecordsData>>() {})
-                .map(response -> response.isSuccess() && response.getData() != null ?
-                        response.getData().getRecords() : Collections.emptyList())
+                .map(response -> {
+                    if (response.isSuccess() && response.getData() != null && response.getData().getRecords() != null) {
+                        return response.getData().getRecords();
+                    }
+                    return Collections.<TableRow>emptyList();
+                })
                 .onErrorReturn(Collections.emptyList());
+    }
 
+    // ==================== Комплексный метод для embed preview ====================
+    public Mono<TableRowsResponseDto> getRows(String dstId, String viewId, String authToken) {
+        Mono<List<TableRow>> rowsMono = getRecords(dstId, viewId, authToken);
         Mono<List<TableColumnDto>> fieldsMono = getFields(dstId, viewId, authToken);
         Mono<TableMetadata> metaMono = getDatasheetMetadata(dstId, authToken);
         Mono<List<TableViewDto>> viewsMono = getViews(dstId, authToken);
@@ -188,7 +199,6 @@ public class TablesApiClient {
         TableMetadata meta = new TableMetadata();
         meta.setId(node.getId());
         meta.setName(node.getName());
-        // Поле updatedAt может отсутствовать в NodeDto
         return meta;
     }
 }
